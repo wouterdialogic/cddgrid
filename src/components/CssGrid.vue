@@ -3,7 +3,7 @@
    
   
   <hr /><br>
-  <h2>First, define a main grid: set size and classes:</h2><br>
+  <h2>{{user_instruction}}</h2><br>
     <h3>Columns and rows</h3><br>
     <input
       type="number"
@@ -11,13 +11,13 @@
       id="grid_columns"
       placeholder="columns"
       style="width:100px;"
-      class="bg-grey-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+      class="bg-grey-lighter appearance-none order-2-2 order-2-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:order-2-purple"
       v-model="grid_columns"
     /> - 
     <input type="number" 
     style="width:100px;"
     placeholder="rows"
-    class="bg-grey-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+    class="bg-grey-lighter appearance-none order-2-2 order-2-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:order-2-purple"
     v-model="grid_rows" />
 
 <br><br>
@@ -29,7 +29,7 @@
           style="width:100px;"
           @change="handle_all_controller()"
           type="text"
-          class="bg-grey appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+          class="bg-grey appearance-none order-2-2 order-2-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:order-2-purple"
           :placeholder="'all'"
           :id="'all_'"
         />
@@ -41,12 +41,16 @@
           style="width:100px;"
           @change="handle_column_controller(column)"
           type="text"
-          class="bg-grey-light appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+          class="bg-grey-light appearance-none order-2-2 order-2-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:order-2-purple"
           :placeholder="'col ' + column"
           :id="'column_' + column"
         />
   </template>
-
+    <input type="number" 
+    style="width:100px;"
+    placeholder="rows"
+    class="bg-yellow-lighter appearance-none order-2-2 order-2-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+    v-model="grid_columns" />
   <br />
     <template v-for="(row, index) in int_grid_rows()">
       <input
@@ -67,6 +71,7 @@
           :name="'el' + row + '_' + column"
           :key="index+'-'+index2"
           style="width:100px;"
+          @change="handle_cell_controller()"
           type="text"
           class="bg-grey-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
           value="main"
@@ -74,68 +79,54 @@
           :id="column + '_' + row"
         />
       </template>
-      
+      <input :key="index" style="width:100px;" disabled class="bg-white w-full py-2 px-4 text-white"/>
       <br />
-    </template>
-    <br><h3>Define main grid:</h3><br>
-    <h2>When you`re happy, click on define main grid :</h2><br>
-      <button class="button bg-green-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue" 
-      :disabled="active_area != 'all'"
-      @click="define_main_grid_areas()" 
-      >Define main grid</button>
-    <br><br>
+    </template> 
+    
+  <input type="number" 
+    style="width:100px;"
+    placeholder="rows"
+    class="bg-yellow-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple"
+    v-model="grid_rows" />
+    
+    <template v-for="(column2, index3) in int_grid_columns()">
+         <input :key="'dymmu'+index3" style="width:100px;" disabled class="bg-white w-full py-2 px-4 text-white"/>
+      
+        </template><input style="width:100px;" disabled class="bg-white w-full py-2 px-4 text-white"/>
 
-     <h3>Available grids, based on defined classes:</h3> <div class="buttons"><br>
-      <button class="button bg-green-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue" 
+    <br /><br />    <br>
+    <template v-if='this.grids.all.unique_areas.length > 1'>
+     <br><h3>Available grids, based on defined classes:</h3> <div class="buttons"><br>
+      <button class="button bg-green-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue selected:border-red" 
       :disabled="active_area == 'all'"
       @click="enable_area('all')" 
       >all</button> - 
     <template v-for="(area, index) in areas">
-      <button class="button bg-blue-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue" 
+      <button class="button bg-blue-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue hover:border-red" 
       :disabled="active_area == area"
       @click="enable_area(area)" 
       :key="index" >{{area}}</button> - 
     </template>
-    </div>
+    </div><br>
+    </template>
 
-    <template v-if="active_area == 'all'">
-    <br><h3>Save classes, and render the grid:</h3><br>
-      <button class="button bg-green-lighter border-2 border-grey-lighter py-2 px-6 hover:bg-blue" 
-      :disabled="active_area != 'all'"
-      @click="build_main_grid()" 
-      >build grid</button>
-    </template><br><br>
-
-    <!-- <div class="wrapper" :style=" 'grid-template-areas: ' + grid_template_areas +';grid-template-columns: '+ get_grid_template_columns+';'" >
-      <template v-for="area in areas">
-        <template v-if="is_subarea(area)">
-            <div :class="area + ' wrapper-part'"  :style="'grid-area: '+area" >{{ area }}
-              <p> wouter is niet</p>
-            </div>
-        </template>
-        <template v-else>
-          <div  :class="area + ' wrapper-part'" :style="'grid-area: '+area" >{{ area }}
-            <p> wouter is gek</p>
-          </div>
-        </template>
-      </template>
-      
-    </div> -->
-      <!-- <h1>FOR REALZ</h1> -->
     <!-- <template v-if="active_area == 'all'"> -->
-      <div class="wrapper" :style=" 'grid-template-areas: ' + grid_template_areas +';grid-template-columns: '+ get_grid_template_columns+';'" >
+      <div :class="'wrapper' + set_active_area('all')" :style=" 'margin: 10px; grid-template-areas: ' + grid_template_areas +';grid-template-columns: '+ this.grids.all.columns+';'" >
       <template v-for="(area, index) in areas">
         <template v-if="is_subarea(area)">
-          <div :class="area + ' wrapper-part subgrid'" :key="index"
-          :style="'grid-area: '+area+'; grid-template-areas: '+subgrids_message[area]"
+          <div 
+          :class="area + ' wrapper-part subgrid ' +set_active_area(area)" 
+          :key="index"
+          @click="enable_area(area)"
+          :style="'grid-area: '+area+'; grid-template-areas: '+subgrids_message[area]+'; '+define_background_color(area)+';'"
           >
           <!-- <template v-if="Object.keys(grids[area].unique_areas.length).length > 1"> -->
             <template v-if="grids[area].unique_areas.length > 1">
               <template v-for="(subarea, index2) in grids[area].unique_areas">
                 <div :key="index2" 
+                @click="enable_area(subarea)"
                 :class="subarea + ' wrapper-part-deep'" 
                 :style="'grid-area: '+subarea" >
-                  
                   <p>{{subarea}} :{{ class_contents[subarea] }}</p>
                 </div>
                 
@@ -144,7 +135,11 @@
           </div>
         </template>
         <template v-else>
-          <div :class="area + ' wrapper-part'" :style="'grid-area: '+area" >{{ area }}
+          <div 
+          :key="index" 
+
+          :class="area + ' wrapper-part'" 
+          :style="'grid-area: '+area" >{{ area }}
             <p>{{area}} : {{ class_contents[area] }}</p>
           </div>
         </template>
@@ -166,14 +161,7 @@
       @change="fill_class_content()"
       v-model="user_content"
     /> 
-    <!-- </template> -->
 
-    <!--
-      <div class="header wrapper-part">Header</div>
-      <div class="sidebar wrapper-part">Sidebar</div>
-      <div class="content wrapper-part">Content</div>
-      <div class="footer wrapper-part">Footer</div>
-    -->
   </div>
 </template>
 
@@ -197,21 +185,29 @@ export default {
       user_class: "",
       user_content: "",
       areas: ["all"],
-      all_areas: ["all"],
+      //all_areas: ["all"],
       sub_areas: [1],
-      calculating_areas: [],
-      grid_columns: 3,
-      grid_rows: 3,
+      //calculating_areas: [],
+      grid_columns: 4,
+      grid_rows: 4,
       created_grid: {},
       whole_grid: {},
       form: {
         parent_id: []
       },
-      grids: {},
+      standard_grid: {
+        columns: 4, 
+        rows: 4, 
+        grid: {},
+        unique_areas: ["sub"]
+        },
+      grids: {
+        all: {columns: 4, rows: 4, grid: {}, unique_areas: ["main"]}
+      },
       class_contents: {awd: "hi there"},
       active_area: 'all',
       grid_template_columns: 8,
-      grid: grid,
+      //grid: grid,
       el1_1: 15,
       msg: "Welcome to Your Vue.js App",
       subgrids_message: {},
@@ -225,6 +221,10 @@ export default {
   },
 
   computed: {
+    wrapper_style: function(area) {
+      return 'grid-area: '+area+'; grid-template-areas: '+this.subgrids_message[area]+'; background-color: lightgreen;';
+    },
+
     get_grid_template_columns: function() {
       var line = '';
       for (var i = 1; i <= this.grid_columns; i++) {
@@ -233,30 +233,93 @@ export default {
       return line;
     },
 
+    is_every_area_filled: function() {
+      for (let area of this.grids.all.unique_areas) {
+        if (this.grids[area] == undefined) {
+          console.log("yes, area "+area+" is undefined")
+          return false;
+        }
+        if (this.object_is_empty(this.grids[area].grid)) {
+          console.log("yes, area "+area+" is empty")
+          return false;
+        }
+      }
+
+      return true;
+    },
+
+    user_instruction: function() {
+      // if (Object.keys(this.grids.all.grid).length === 0 && this.grids.all.grid.constructor === Object) {
+      if (this.object_is_empty(this.grids.all.grid)) {
+        return "First, define a main grid: set size and classes: \r\n You can adjust the size with the yellow buttons.";
+      } else if (this.grids.all.unique_areas.length == 1) {
+        return "Nice, you have 1 area, do you want more?";
+      } else if (!this.is_every_area_filled) {
+        return "Excellent! Now we can start working on subgrids, use the blue buttons!";
+      } else {
+        return "You`ve set every subgrid, you can continue tweaking or have a look at some options"
+      }
+    }
   },
 
    watch: {
       value(created_grid) {
           this.$el.innerHTML = v;
-      }
+      },
   },
 
   methods: {
+    define_background_color(area) {
+      if (area == this.active_area || this.active_area == 'all') {
+          return 'background-color: rgb(211, 230, 240;';
+        } else {
+          return 'background-color: rgb(224, 240, 250)';
+      }
+    },
+
+    set_active_area(area) {
+      if (area == this.active_area) {
+        return ' shadow-xl';
+        } else {
+          return ''
+        return '';
+      }
+    },
+
+    object_is_empty(given_object) {
+      return Object.keys(given_object).length === 0 && given_object.constructor === Object;
+    },
+
     fill_class_content() {
       this.class_contents[this.user_class] = this.user_content;
     },
+
+    redefine_areas() {
+      this.grids[this.active_area].unique_areas = [...new Set(Object.values(this.created_grid))];
+
+     //for (let area of this.grids.all.unique_areas) {
+     //  if (!this.grids[area]) {
+     //    this.enable_area(area)
+     //    console.log(area);
+     //    console.log(typeof(this.grids[area]));
+     //  }
+     //  //standard_grid
+     //}
+     //this.enable_area('all');
+    },
     
+    handle_cell_controller() {
+      this.rebuild_grid();
+    },
+
     handle_row_controller(row) {
       var grid_columns = this.int_grid_columns();
 
       for (var column = 1; column <= grid_columns; column++) {
-        // for (var row = 1; row <= grid_rows; row++) {
-          // if (column == given_column) {
-            // console.log(given_column);
-            this.created_grid["col"+column+"row"+row] = this.form["row"+row];
-          //}
-        // }
+        this.created_grid["col"+column+"row"+row] = this.form["row"+row];
       }
+
+      this.rebuild_grid();
 
       this.form["row"+row] = '';
     },
@@ -265,18 +328,19 @@ export default {
     handle_column_controller(given_column) {
       var grid_rows = this.int_grid_rows();
 
-      // for (var column = 1; column <= grid_columns; column++) {
-        for (var row = 1; row <= grid_rows; row++) {
-          // if (column == given_column) {
-            console.log(given_column);
-            this.created_grid["col"+given_column+"row"+row] = this.form["column"+given_column];
-          //}
-        }
-      // }
+      for (var row = 1; row <= grid_rows; row++) {
+          this.created_grid["col"+given_column+"row"+row] = this.form["column"+given_column];
+      }
+
+      this.rebuild_grid();
 
       this.form["column"+given_column] = '';
-      
-      console.log("column done?");
+    },
+
+    rebuild_grid() {
+      this.save_current_area();
+      this.redefine_areas();
+      this.build_main_grid();
     },
 
     handle_all_controller() {
@@ -289,20 +353,16 @@ export default {
         }
       }
 
+      this.rebuild_grid();
+
       this.form["all"] = '';
-      console.log("done?");
     },
 
     define_main_grid_areas() {
        this.build_main_grid();
     },
 
-    enable_area(area_name) {
-      console.log("area: "+area_name);
-      console.log("active_area: "+this.active_area);
-      
-      //save the current grid:
-      
+    save_current_area() {
       this.grids[this.active_area] =  {
         grid: this.created_grid,
         columns: this.int_grid_columns(),
@@ -310,10 +370,10 @@ export default {
         unique_areas: [...new Set(Object.values(this.created_grid))],
       };
 
-      //reset
-      this.created_grid = {};
-    
-      //if it is saved before, reload it
+      this.areas = this.grids[this.active_area].unique_areas;
+    },
+
+    create_grid_or_load_grid(area_name) {
       if (this.grids[area_name] != undefined) {
         this.created_grid = this.grids[area_name].grid;
         this.grid_columns = this.grids[area_name].columns;
@@ -325,9 +385,21 @@ export default {
         this.grid_columns = 4;
         this.grid_rows = 4;
       }
+    },
+
+    enable_area(area_name) {
+      //save the current grid:
+      this.save_current_area();
+
+      //reset
+      this.created_grid = {};
+    
+      //if it is saved before, reload it
+      this.create_grid_or_load_grid(area_name);
 
       //finally, set the active area
       this.active_area = area_name;
+      this.rebuild_grid();
     },
 
     int_grid_columns: function() {
@@ -347,10 +419,11 @@ export default {
       if (this.grids.all == undefined) {
         this.enable_area('all')
       }
+
       //first, show the main grid:
       let columns = this.grids.all.columns;
       let rows = this.grids.all.rows;
-      this.grid_columns = columns;
+
       let current_grid = this.grids.all.grid;
       let message = '';
       let line = "";
@@ -381,16 +454,13 @@ export default {
         }
       }
 
-      console.log(message);
       this.msg = message;
       this.grid_template_areas = message;
 
     },
 
     create_sub_grid: function(name) {
-      console.log(name);
-      console.log(this.grids[name]);
-      console.log(this.grids[name].columns);
+
       let columns = this.grids[name].columns;
       let rows = this.grids[name].rows;
       let message = '';
@@ -410,8 +480,7 @@ export default {
 
         message = message + "'" + line + "' ";
       }
-      
-      console.log("subgrid: "+ message);
+
       return message;
     },
 
@@ -470,23 +539,24 @@ a {
 }
 .wrapper {
   display: grid;
-  grid-auto-rows: minmax(100px, auto);
+  grid-auto-rows: minmax(50px, auto);
   grid-gap: 10px;
 }
 
 .subgrid {
   display: grid;
-  grid-auto-rows: minmax(100px, auto);
+  grid-auto-rows: minmax(50px, auto);
   grid-gap: 5px;
   background-color: lightgreen;
 }
 
 .wrapper-part {
-  background-color: lightgrey;
+  background-color: rgb(224, 240, 250);
+  
 }
 
 .wrapper-part-deep {
-  background-color: greenyellow;
+  background-color: rgb(175, 205, 212);
 }
 
 .header {
